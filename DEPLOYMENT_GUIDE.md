@@ -108,10 +108,7 @@ Résultat : Schéma V2 finalisé ✅ (Anciennes colonnes/triggers supprimés)
 Si problème détecté entre 02:30-04:00 :
 ```bash
 # Exécuter avant 04:00
-docker-compose run --rm flyway -target=2 undo
-
-# Ou manuellement
-docker exec -it medassist_pg psql -U medassist_user -d medassist < R_V2__rollback.sql
+docker exec -i medassist_pg psql -U medassist_user -d medassist < rollback/R_V2__rollback.sql
 
 # Supprimer l'entrée Flyway
 DELETE FROM flyway_schema_history WHERE version = '2.0';
@@ -126,10 +123,7 @@ DELETE FROM flyway_schema_history WHERE version = '2.0';
 Si problème détecté entre 02:30-04:00 :
 ```bash
 # Exécuter avant 04:00
-docker-compose run --rm flyway -target=3 undo
-
-# Ou manuellement
-docker exec -it medassist_pg psql -U medassist_user -d medassist < R_V3__rollback.sql
+docker exec -i medassist_pg psql -U medassist_user -d medassist < rollback/R_V3__rollback.sql
 
 # Supprimer l'entrée Flyway
 DELETE FROM flyway_schema_history WHERE version = '3.0';

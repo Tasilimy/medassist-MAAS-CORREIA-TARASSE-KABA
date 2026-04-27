@@ -1,7 +1,4 @@
---
-====================================================================
 -- test_evolution_D.sql : Tests pour l'Évolution D (Chiffrement SSN)
-====================================================================
 -- Tests de validation pour le chiffrement des données sensibles
 --
 

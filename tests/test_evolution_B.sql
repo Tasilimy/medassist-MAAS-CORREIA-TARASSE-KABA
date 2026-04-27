@@ -1,7 +1,4 @@
---
-====================================================================
 -- test_evolution_B.sql : Tests pour l'Évolution B (Doctors)
-====================================================================
 -- Tests de validation pour la normalisation du champ doctor_name
 --
 

@@ -1,7 +1,4 @@
---
-====================================================================
 -- test_evolution_A.sql : Tests pour l'Évolution A (Adresses)
-====================================================================
 -- Tests de validation pour la restructuration de l'adresse des patients
 --
 

@@ -1,7 +1,4 @@
---
-====================================================================
 -- test_evolution_C.sql : Tests pour l'Évolution C (Gender)
-====================================================================
 -- Tests de validation pour la refonte du champ gender
 --
 

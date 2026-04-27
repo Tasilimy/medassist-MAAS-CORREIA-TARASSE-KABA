@@ -1,9 +1,6 @@
---
-====================================================================
 -- V2__expand_schema.sql : Phase EXPAND pour les 5 évolutions A-E
 -- Stratégie : Expand-Contract (Zero-downtime migration)
 -- Cette phase ajoute les nouvelles structures sans supprimer les anciennes
-====================================================================
 --
 
 -- ====================================================================
@@ -95,7 +92,7 @@ WITH doctor_names AS (
 INSERT INTO doctors (rpps_number, first_name, last_name, specialty)
 SELECT
   -- Générer un RPPS fictif (11 chiffres)
-  LPAD(ROW_NUMBER()::TEXT, 11, '0') as rpps_number,
+  LPAD(ROW_NUMBER() OVER (ORDER BY normalized_name)::TEXT, 11, '0') as rpps_number,
   -- Extraire le prénom (avant le dernier mot)
   CASE
     WHEN normalized_name LIKE '%MARTIN%' AND normalized_name LIKE '%JEAN%'
@@ -192,27 +189,27 @@ CREATE TABLE consultations_partitioned (
   is_paid BOOLEAN NOT NULL DEFAULT FALSE,
   created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (id, consultation_date)
-) PARTITION BY RANGE (EXTRACT(YEAR FROM consultation_date));
+) PARTITION BY RANGE (consultation_date);
 
 -- Créer les partitions par année
 CREATE TABLE consultations_2021 PARTITION OF consultations_partitioned
-  FOR VALUES FROM (2021) TO (2022);
+  FOR VALUES FROM ('2021-01-01') TO ('2022-01-01');
 
 CREATE TABLE consultations_2022 PARTITION OF consultations_partitioned
-  FOR VALUES FROM (2022) TO (2023);
+  FOR VALUES FROM ('2022-01-01') TO ('2023-01-01');
 
 CREATE TABLE consultations_2023 PARTITION OF consultations_partitioned
-  FOR VALUES FROM (2023) TO (2024);
+  FOR VALUES FROM ('2023-01-01') TO ('2024-01-01');
 
 CREATE TABLE consultations_2024 PARTITION OF consultations_partitioned
-  FOR VALUES FROM (2024) TO (2025);
+  FOR VALUES FROM ('2024-01-01') TO ('2025-01-01');
 
 CREATE TABLE consultations_2025 PARTITION OF consultations_partitioned
-  FOR VALUES FROM (2025) TO (2026);
+  FOR VALUES FROM ('2025-01-01') TO ('2026-01-01');
 
 -- Partition pour les années futures
 CREATE TABLE consultations_future PARTITION OF consultations_partitioned
-  FOR VALUES FROM (2026) TO (MAXVALUE);
+  FOR VALUES FROM ('2026-01-01') TO (MAXVALUE);
 
 -- Créer les index sur les partitions
 CREATE INDEX idx_consultations_partitioned_patient ON consultations_partitioned(patient_id);

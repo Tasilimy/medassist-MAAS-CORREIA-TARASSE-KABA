@@ -48,10 +48,10 @@ medassist-MAAS-CORREIA-TARASSE-KABA/
 │       ├── V1__init_schema.sql          # Schéma initial (fourni)
 │       ├── V1.1__seed_data.sql          # Données test (fourni)
 │       ├── V2__expand_schema.sql        # Phase EXPAND (migrations)
-│       ├── V3__contract_schema.sql      # Phase CONTRACT (finalisation)
-│       └── rollback/
-│           ├── R_V2__rollback.sql       # Rollback V2
-│           └── R_V3__rollback.sql       # Rollback V3
+│       └── V3__contract_schema.sql      # Phase CONTRACT (finalisation)
+├── rollback/
+│   ├── R_V2__rollback.sql               # Rollback V2
+│   └── R_V3__rollback.sql               # Rollback V3
 ├── tests/
 │   ├── README.md                        # Guide des tests
 │   ├── test_evolution_A.sql             # Tests pour Adresses

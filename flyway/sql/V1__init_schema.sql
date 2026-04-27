@@ -1,10 +1,4 @@
---
-==================================================================
-===========
 -- V1__init_schema.sql : Création du schéma initial
---
-==================================================================
-===========
 CREATE EXTENSION IF NOT EXISTS pgcrypto;
 CREATE TABLE patients (
 id BIGSERIAL PRIMARY KEY,

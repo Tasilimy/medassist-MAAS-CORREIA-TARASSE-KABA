@@ -1,7 +1,4 @@
---
-====================================================================
 -- test_evolution_E.sql : Tests pour l'Évolution E (Partitionnement)
-====================================================================
 -- Tests de validation pour le partitionnement de la table consultations
 --
 

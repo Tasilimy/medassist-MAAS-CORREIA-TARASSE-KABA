@@ -1,5 +1,3 @@
---
-====================================================================
 -- V3__contract_schema.sql : Phase CONTRACT pour finaliser les migrations
 -- Supprimer les anciennes structures après validation que V2 fonctionne
 -- 
@@ -13,6 +11,8 @@
 -- ====================================================================
 -- Supprimer les vues de compatibilité V1 (plus besoin avec application V2)
 DROP VIEW IF EXISTS patients_v1_view CASCADE;
+DROP VIEW IF EXISTS patients_v2_view CASCADE;
+DROP VIEW IF EXISTS consultations_v2_view CASCADE;
 
 -- Supprimer les anciennes colonnes d'adresse de patients
 ALTER TABLE patients
@@ -27,8 +27,6 @@ DROP FUNCTION IF EXISTS sync_address_to_patients() CASCADE;
 
 -- Optimiser la table addresses (reindex)
 REINDEX TABLE addresses;
-
-RAISE NOTICE '[✓] ÉVOLUTION A : Adresses - Phase CONTRACT complétée';
 
 -- ====================================================================
 -- ÉVOLUTION B : Finaliser la normalisation des médecins
@@ -50,8 +48,6 @@ ALTER TABLE consultations DROP COLUMN IF EXISTS doctor_name;
 -- Optimiser la table consultations
 REINDEX TABLE consultations;
 
-RAISE NOTICE '[✓] ÉVOLUTION B : Doctors - Phase CONTRACT complétée';
-
 -- ====================================================================
 -- ÉVOLUTION C : Finaliser la refonte du gender
 -- ====================================================================
@@ -67,8 +63,6 @@ ALTER TABLE patients ALTER COLUMN gender SET NOT NULL;
 
 -- Optimiser la table patients
 REINDEX TABLE patients;
-
-RAISE NOTICE '[✓] ÉVOLUTION C : Gender - Phase CONTRACT complétée';
 
 -- ====================================================================
 -- ÉVOLUTION D : Finaliser le chiffrement des SSN
@@ -90,8 +84,6 @@ CREATE INDEX idx_patients_ssn_encrypted ON patients(ssn_encrypted);
 -- (Aucune requête ici, juste un commentaire de validation)
 -- SELECT COUNT(*) FROM patients WHERE ssn_encrypted IS NULL AND ssn IS NOT NULL;
 -- Doit retourner 0
-
-RAISE NOTICE '[✓] ÉVOLUTION D : Chiffrement - Phase CONTRACT complétée';
 
 -- ====================================================================
 -- ÉVOLUTION E : Finaliser le partitionnement des consultations
@@ -119,18 +111,8 @@ SELECT * FROM consultations_partitioned;
 -- Pour cette implémentation, on garde les deux tables pour sécurité
 -- Les données sont en sync et les futures écritures vont dans la partitionnée
 
-RAISE NOTICE '[✓] ÉVOLUTION E : Partitionnement - Phase CONTRACT complétée';
-
 -- ====================================================================
 -- Nettoyage final et optimisation
 -- ====================================================================
 -- Mettre à jour les statistiques pour l'optimiseur
 ANALYZE;
-
--- Afficher les table/index/vues restants
-RAISE NOTICE '========== PHASE CONTRACT TERMINÉE ==========';
-RAISE NOTICE 'État final du schéma :';
-RAISE NOTICE 'Tables principales : patients, addresses, consultations, consultations_partitioned, doctors, prescriptions, gender_ref';
-RAISE NOTICE 'Vues compatibilité : consultations_legacy';
-RAISE NOTICE 'Triggers : AUCUN (tous supprimés)';
-RAISE NOTICE '========== ✅ MIGRATION COMPLÈTE ==========';

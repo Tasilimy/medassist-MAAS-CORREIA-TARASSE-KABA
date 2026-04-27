@@ -1,7 +1,4 @@
---
-====================================================================
 -- test_evolution_contract.sql : Tests pour la phase CONTRACT (V3)
-====================================================================
 -- Valide que les anciennes structures ont été supprimées correctement
 --
 
@@ -128,8 +125,6 @@ BEGIN
 END $$;
 
 -- Afficher le schéma final
-RAISE NOTICE '========== SCHÉMA FINAL ==========';
-
 -- Tables principales
 SELECT 
   COUNT(*) as patients,
