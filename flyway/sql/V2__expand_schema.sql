@@ -156,7 +156,8 @@ ALTER TABLE patients ADD CONSTRAINT fk_patients_gender FOREIGN KEY (gender_new) 
 -- ====================================================================
 -- ÉVOLUTION D : Chiffrement des données sensibles (SSN)
 -- ====================================================================
--- Extension pgcrypto déjà créée dans V1__init_schema.sql
+-- Garantir pgcrypto même si V1 a été ignorée via baseline Flyway
+CREATE EXTENSION IF NOT EXISTS pgcrypto;
 
 -- Ajouter colonne ssn_encrypted à patients
 ALTER TABLE patients ADD COLUMN ssn_encrypted BYTEA;

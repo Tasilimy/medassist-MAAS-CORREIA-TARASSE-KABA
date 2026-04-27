@@ -26,7 +26,6 @@ services:
       FLYWAY_PASSWORD: medassist_pass
       FLYWAY_LOCATIONS: filesystem:/flyway/sql
       FLYWAY_SCHEMAS: public
-      FLYWAY_BASELINE_ON_MIGRATE: "true"
     volumes:
       - ./flyway/sql:/flyway/sql
       - ./flyway/conf:/flyway/conf
