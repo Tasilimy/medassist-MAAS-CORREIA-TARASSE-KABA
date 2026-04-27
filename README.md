@@ -1,41 +1,41 @@
-# MedAssist - Migration V1 → V2 (BDD)
+# MedAssist - Migration V1 vers V2
 
-Projet de migration de base de données pour la plateforme MedAssist, système de gestion de dossiers médicaux.
+Projet de migration de base de données pour la plateforme MedAssist.
 
-## 📋 Contexte
+## 1. Contexte
 
-- **Plateforme** : MedAssist (SaaS gestion dossiers médicaux)
+- **Plateforme** : MedAssist, solution SaaS de gestion de dossiers médicaux
 - **Clients** : 350 cabinets médicaux en France
 - **Volume** : ~2,4M patients, ~18M consultations, ~45M prescriptions
 - **SLA** : 99,9% (8h44 downtime/an max)
 - **Fenêtre maintenance** : Dimanche 2h-6h (4 heures)
 - **Réglementation** : HDS + RGPD (données sensibles)
 
-## 🎯 Objectif
+## 2. Objectif
 
-Implémenter 5 évolutions du schéma de base de données avec **zéro downtime** grâce à la stratégie **Expand-Contract** :
+Implémenter cinq évolutions du schéma de base de données avec une strategie Expand-Contract.
 
-### Évolution A : Restructuration des adresses
-- ❌ Avant : adresse dans colonnes séparées (patients)
-- ✅ Après : table dédiée `addresses` (1-N avec patients)
+### Evolution A : restructuration des adresses
+- Avant : adresse dans des colonnes séparées dans `patients`
+- Après : table dédiée `addresses` avec relation un vers plusieurs
 
-### Évolution B : Normalisation des médecins
-- ❌ Avant : `doctor_name` texte libre avec incohérences
-- ✅ Après : table `doctors` avec déduplication
+### Evolution B : normalisation des médecins
+- Avant : `doctor_name` en texte libre avec incohérences
+- Après : table `doctors` avec déduplication
 
-### Évolution C : Refonte du genre
-- ❌ Avant : `gender` = CHAR(1) avec M/F seulement
-- ✅ Après : `gender_new` VARCHAR(10) avec M/F/NB/U
+### Evolution C : refonte du genre
+- Avant : `gender` en CHAR(1) avec M/F uniquement
+- Après : `gender_new` en VARCHAR(10) avec M/F/NB/U
 
-### Évolution D : Chiffrement SSN
-- ❌ Avant : `ssn` en clair
-- ✅ Après : `ssn_encrypted` chiffré avec pgcrypto
+### Evolution D : chiffrement du SSN
+- Avant : `ssn` en clair
+- Après : `ssn_encrypted` chiffre avec pgcrypto
 
-### Évolution E : Partitionnement consultations
-- ❌ Avant : table monolithique 18M lignes
-- ✅ Après : table partitionnée par année
+### Evolution E : partitionnement des consultations
+- Avant : table monolithique de 18 millions de lignes
+- Après : table partitionnee par année
 
-## 🏗️ Structure du projet
+## 3. Structure du projet
 
 ```
 medassist-MAAS-CORREIA-TARASSE-KABA/
@@ -64,36 +64,36 @@ medassist-MAAS-CORREIA-TARASSE-KABA/
     └── rapport_strategie.md             # À compléter
 ```
 
-## 🚀 Démarrage rapide
+## 4. Demarrage rapide
 
-### 1. Lancer l'environnement Docker
+### 4.1 Lancer l'environnement Docker
 
 ```bash
 cd medassist-MAAS-CORREIA-TARASSE-KABA
 
-# Démarrer PostgreSQL
+# Demarrer PostgreSQL
 docker-compose up -d postgres
 
 # Attendre que PostgreSQL soit prêt
 sleep 5
 
-# Exécuter les migrations Flyway
+# Executer les migrations Flyway
 docker-compose run --rm flyway migrate
 
-# Vérifier les migrations
+# Verifier les migrations
 docker-compose run --rm flyway info
 ```
 
-### 2. Connecter à la base
+### 4.2 Se connecter à la base
 
 ```bash
 docker exec -it medassist_pg psql -U medassist_user -d medassist
 ```
 
-### 3. Exécuter les tests
+### 4.3 Executer les tests
 
 ```bash
-# Tester l'évolution A
+# Tester l'evolution A
 docker exec -it medassist_pg psql -U medassist_user -d medassist < tests/test_evolution_A.sql
 
 # Ou tous les tests
@@ -103,42 +103,42 @@ for test in tests/test_evolution_*.sql; do
 done
 ```
 
-## 🔄 Stratégie : Expand-Contract
+## 5. Strategie Expand-Contract
 
-Cette migration utilise la stratégie **Expand-Contract** pour garantir le zéro downtime.
+Cette migration utilise la strategie Expand-Contract pour reduire l'impact en production.
 
-### Phase 1 : EXPAND (V2__expand_schema.sql) ✅
+### 5.1 Phase EXPAND (V2__expand_schema.sql)
 - Ajouter les **nouvelles** structures (tables, colonnes)
 - **Conserver** les anciennes structures
 - Migrer les données
 - Créer les **triggers** de synchronisation
 - Créer les **vues** de compatibilité
 
-### Phase 2 : CONTRACT (V3__contract_schema.sql) ✅
+### 5.2 Phase CONTRACT (V3__contract_schema.sql)
 - Supprimer les **anciennes** structures
 - Supprimer les triggers de synchronisation
 - Finaliser les index et optimisations
-- **Irréversible** - À exécuter UNIQUEMENT après validation en production
+- **Irréversible** - A executer uniquement apres validation en production
 
-**État actuel** : 
-- **Phase EXPAND** ✅ Complétée (V2)
-- **Phase CONTRACT** ✅ Implémentée (V3)
-- **Rollback** ✅ Disponible pour V2 et V3
+Etat actuel :
+- Phase EXPAND : terminee
+- Phase CONTRACT : implementee
+- Rollback : disponible pour V2 et V3
 
-## 📝 Fichiers créés
+## 6. Fichiers du projet
 
-✅ **V2__expand_schema.sql** - Phase EXPAND (migrations pour 5 évolutions)
-✅ **V3__contract_schema.sql** - Phase CONTRACT (finalisation)
-✅ **R_V2__rollback.sql** - Script de rollback V2
-✅ **R_V3__rollback.sql** - Script de rollback V3
-✅ **test_evolution_A.sql** - Tests Adresses
-✅ **test_evolution_B.sql** - Tests Doctors
-✅ **test_evolution_C.sql** - Tests Gender
-✅ **test_evolution_D.sql** - Tests Chiffrement
-✅ **test_evolution_E.sql** - Tests Partitionnement
-✅ **test_contract.sql** - Tests Phase CONTRACT
-✅ **tests/README.md** - Guide complet des tests
+- `V2__expand_schema.sql` - Phase EXPAND
+- `V3__contract_schema.sql` - Phase CONTRACT
+- `rollback/R_V2__rollback.sql` - Script de rollback V2
+- `rollback/R_V3__rollback.sql` - Script de rollback V3
+- `tests/test_evolution_A.sql` - Tests Adresses
+- `tests/test_evolution_B.sql` - Tests Doctors
+- `tests/test_evolution_C.sql` - Tests Gender
+- `tests/test_evolution_D.sql` - Tests Chiffrement
+- `tests/test_evolution_E.sql` - Tests Partitionnement
+- `tests/test_contract.sql` - Tests phase CONTRACT
+- `tests/README.md` - Guide des tests
 
-## 📚 Documentation
+## 7. Documentation
 
-Voir [tests/README.md](tests/README.md) pour le guide complet des tests et validations.
+Voir [tests/README.md](tests/README.md) pour le guide des tests et des validations.
