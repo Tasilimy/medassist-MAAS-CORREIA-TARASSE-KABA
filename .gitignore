@@ -1,0 +1,20 @@
+# OS / editor
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+
+# Environment files
+.env
+.env.*
+
+# Python cache (if tests/scripts are added)
+__pycache__/
+*.pyc
+
+# Logs / temp
+*.log
+*.tmp
+
+# Local backups
+*.bak
