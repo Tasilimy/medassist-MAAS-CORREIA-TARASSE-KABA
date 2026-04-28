@@ -13,9 +13,9 @@ BEGIN
   -- Test 1 : Vérifier que pgcrypto est installé
   v_test_count := v_test_count + 1;
   IF EXISTS (SELECT 1 FROM pg_extension WHERE extname = 'pgcrypto') THEN
-    RAISE NOTICE '[✓] Test 1 : Extension pgcrypto installée';
+    RAISE NOTICE '[OK] Test 1 : Extension pgcrypto installée';
   ELSE
-    RAISE NOTICE '[✗] Test 1 ÉCHOUÉ : pgcrypto non installée';
+    RAISE NOTICE '[ERREUR] Test 1 ÉCHOUÉ : pgcrypto non installée';
     v_failed_count := v_failed_count + 1;
   END IF;
   
@@ -25,9 +25,9 @@ BEGIN
     SELECT 1 FROM information_schema.columns 
     WHERE table_name = 'patients' AND column_name = 'ssn_encrypted'
   ) THEN
-    RAISE NOTICE '[✓] Test 2 : Colonne ssn_encrypted existe';
+    RAISE NOTICE '[OK] Test 2 : Colonne ssn_encrypted existe';
   ELSE
-    RAISE NOTICE '[✗] Test 2 ÉCHOUÉ : ssn_encrypted manquant';
+    RAISE NOTICE '[ERREUR] Test 2 ÉCHOUÉ : ssn_encrypted manquant';
     v_failed_count := v_failed_count + 1;
   END IF;
   
@@ -35,18 +35,18 @@ BEGIN
   v_test_count := v_test_count + 1;
   SELECT COUNT(*) INTO v_encrypted_count FROM patients WHERE ssn_encrypted IS NOT NULL;
   IF v_encrypted_count > 0 THEN
-    RAISE NOTICE '[✓] Test 3 : % SSN chiffrés', v_encrypted_count;
+    RAISE NOTICE '[OK] Test 3 : % SSN chiffrés', v_encrypted_count;
   ELSE
-    RAISE NOTICE '[✗] Test 3 ÉCHOUÉ : Aucun SSN chiffré';
+    RAISE NOTICE '[ERREUR] Test 3 ÉCHOUÉ : Aucun SSN chiffré';
     v_failed_count := v_failed_count + 1;
   END IF;
   
   -- Test 4 : Vérifier que les SSN en clair sont toujours présents (compatibilité V1)
   v_test_count := v_test_count + 1;
   IF (SELECT COUNT(*) FROM patients WHERE ssn IS NOT NULL) > 0 THEN
-    RAISE NOTICE '[✓] Test 4 : SSN en clair toujours présents (compatibilité V1)';
+    RAISE NOTICE '[OK] Test 4 : SSN en clair toujours présents (compatibilité V1)';
   ELSE
-    RAISE NOTICE '[✗] Test 4 ÉCHOUÉ : SSN en clair supprimés';
+    RAISE NOTICE '[ERREUR] Test 4 ÉCHOUÉ : SSN en clair supprimés';
     v_failed_count := v_failed_count + 1;
   END IF;
   
@@ -58,17 +58,17 @@ BEGIN
       AND ssn IS NOT NULL
       AND ssn_encrypted::TEXT = ssn
      ) = 0 THEN
-    RAISE NOTICE '[✓] Test 5 : ssn_encrypted ne contient pas de texte en clair';
+    RAISE NOTICE '[OK] Test 5 : ssn_encrypted ne contient pas de texte en clair';
   ELSE
-    RAISE NOTICE '[⚠] Test 5 : Avertissement - Certains SSN peuvent être en clair';
+    RAISE NOTICE '[AVERTISSEMENT] Test 5 : Avertissement - Certains SSN peuvent être en clair';
   END IF;
   
   -- Test 6 : Vérifier que tous les patients ont ssn_encrypted s'ils ont ssn
   v_test_count := v_test_count + 1;
   IF (SELECT COUNT(*) FROM patients WHERE ssn IS NOT NULL AND ssn_encrypted IS NULL) = 0 THEN
-    RAISE NOTICE '[✓] Test 6 : Tous les SSN en clair sont chiffrés';
+    RAISE NOTICE '[OK] Test 6 : Tous les SSN en clair sont chiffrés';
   ELSE
-    RAISE NOTICE '[✗] Test 6 ÉCHOUÉ : % SSN non chiffrés',
+    RAISE NOTICE '[ERREUR] Test 6 ÉCHOUÉ : % SSN non chiffrés',
       (SELECT COUNT(*) FROM patients WHERE ssn IS NOT NULL AND ssn_encrypted IS NULL);
     v_failed_count := v_failed_count + 1;
   END IF;
@@ -81,12 +81,12 @@ BEGIN
       WHERE ssn_encrypted IS NOT NULL 
       LIMIT 1
     ) THEN
-      RAISE NOTICE '[✓] Test 7 : Données chiffrées présentes et valides';
+      RAISE NOTICE '[OK] Test 7 : Données chiffrées présentes et valides';
     ELSE
-      RAISE NOTICE '[⚠] Test 7 : Aucune donnée chiffrée pour tester';
+      RAISE NOTICE '[AVERTISSEMENT] Test 7 : Aucune donnée chiffrée pour tester';
     END IF;
   EXCEPTION WHEN OTHERS THEN
-    RAISE NOTICE '[✗] Test 7 ÉCHOUÉ : Erreur lors du test de chiffrement';
+    RAISE NOTICE '[ERREUR] Test 7 ÉCHOUÉ : Erreur lors du test de chiffrement';
     v_failed_count := v_failed_count + 1;
   END;
   

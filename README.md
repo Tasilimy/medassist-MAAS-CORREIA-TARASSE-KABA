@@ -141,4 +141,5 @@ Etat actuel :
 
 ## 7. Documentation
 
-Voir [tests/README.md](tests/README.md) pour le guide des tests et des validations.
+- [DEPLOYMENT_GUIDE.md](DEPLOYMENT_GUIDE.md) : procedure de deploiement et rollback
+- [tests/README.md](tests/README.md) : guide des tests et validations

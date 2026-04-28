@@ -13,9 +13,9 @@ BEGIN
   -- Test 1 : Vérifier que la table partitionnée existe
   v_test_count := v_test_count + 1;
   IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_name = 'consultations_partitioned') THEN
-    RAISE NOTICE '[✓] Test 1 : Table consultations_partitioned existe';
+    RAISE NOTICE '[OK] Test 1 : Table consultations_partitioned existe';
   ELSE
-    RAISE NOTICE '[✗] Test 1 ÉCHOUÉ : Table consultations_partitioned n''existe pas';
+    RAISE NOTICE '[ERREUR] Test 1 ÉCHOUÉ : Table consultations_partitioned n''existe pas';
     v_failed_count := v_failed_count + 1;
   END IF;
   
@@ -26,28 +26,28 @@ BEGIN
     SELECT oid FROM pg_class WHERE relname LIKE 'consultations_%'
   );
   IF v_partition_count >= 6 THEN
-    RAISE NOTICE '[✓] Test 2 : % partitions créées', v_partition_count;
+    RAISE NOTICE '[OK] Test 2 : % partitions créées', v_partition_count;
   ELSE
-    RAISE NOTICE '[✗] Test 2 ÉCHOUÉ : Partitions manquantes (% trouvées)', v_partition_count;
+    RAISE NOTICE '[ERREUR] Test 2 ÉCHOUÉ : Partitions manquantes (% trouvées)', v_partition_count;
     v_failed_count := v_failed_count + 1;
   END IF;
   
   -- Test 3 : Vérifier que les données ont été copiées
   v_test_count := v_test_count + 1;
   IF (SELECT COUNT(*) FROM consultations_partitioned) > 0 THEN
-    RAISE NOTICE '[✓] Test 3 : % consultations dans la table partitionnée', 
+    RAISE NOTICE '[OK] Test 3 : % consultations dans la table partitionnée', 
       (SELECT COUNT(*) FROM consultations_partitioned);
   ELSE
-    RAISE NOTICE '[✗] Test 3 ÉCHOUÉ : Aucune donnée copiée';
+    RAISE NOTICE '[ERREUR] Test 3 ÉCHOUÉ : Aucune donnée copiée';
     v_failed_count := v_failed_count + 1;
   END IF;
   
   -- Test 4 : Vérifier que le nombre de lignes est identique
   v_test_count := v_test_count + 1;
   IF (SELECT COUNT(*) FROM consultations_partitioned) = (SELECT COUNT(*) FROM consultations) THEN
-    RAISE NOTICE '[✓] Test 4 : Toutes les consultations copiées';
+    RAISE NOTICE '[OK] Test 4 : Toutes les consultations copiées';
   ELSE
-    RAISE NOTICE '[✗] Test 4 ÉCHOUÉ : Discordance de données (% vs %)',
+    RAISE NOTICE '[ERREUR] Test 4 ÉCHOUÉ : Discordance de données (% vs %)',
       (SELECT COUNT(*) FROM consultations_partitioned),
       (SELECT COUNT(*) FROM consultations);
     v_failed_count := v_failed_count + 1;
@@ -61,9 +61,9 @@ BEGIN
     AND column_name IN ('id', 'patient_id', 'consultation_date', 'doctor_name')
     GROUP BY table_name HAVING COUNT(*) >= 3
   ) THEN
-    RAISE NOTICE '[✓] Test 5 : Colonnes requises existent';
+    RAISE NOTICE '[OK] Test 5 : Colonnes requises existent';
   ELSE
-    RAISE NOTICE '[✗] Test 5 ÉCHOUÉ : Colonnes manquantes';
+    RAISE NOTICE '[ERREUR] Test 5 ÉCHOUÉ : Colonnes manquantes';
     v_failed_count := v_failed_count + 1;
   END IF;
   
@@ -73,9 +73,9 @@ BEGIN
     SELECT 1 FROM information_schema.table_constraints 
     WHERE table_name = 'consultations_partitioned' AND constraint_type = 'PRIMARY KEY'
   ) THEN
-    RAISE NOTICE '[✓] Test 6 : Clé primaire composite existe';
+    RAISE NOTICE '[OK] Test 6 : Clé primaire composite existe';
   ELSE
-    RAISE NOTICE '[⚠] Test 6 : Avertissement - Clé primaire non trouvée';
+    RAISE NOTICE '[AVERTISSEMENT] Test 6 : Avertissement - Clé primaire non trouvée';
   END IF;
   
   -- Test 7 : Vérifier que la distribution par année est correcte
@@ -84,9 +84,9 @@ BEGIN
     SELECT COUNT(DISTINCT EXTRACT(YEAR FROM consultation_date)::INT) 
     FROM consultations_partitioned
   ) >= 1 THEN
-    RAISE NOTICE '[✓] Test 7 : Données distribuées sur les partitions';
+    RAISE NOTICE '[OK] Test 7 : Données distribuées sur les partitions';
   ELSE
-    RAISE NOTICE '[✗] Test 7 ÉCHOUÉ : Distribution incorrecte';
+    RAISE NOTICE '[ERREUR] Test 7 ÉCHOUÉ : Distribution incorrecte';
     v_failed_count := v_failed_count + 1;
   END IF;
   
@@ -96,9 +96,9 @@ BEGIN
     SELECT 1 FROM information_schema.sequences 
     WHERE sequence_name = 'consultations_partitioned_id_seq'
   ) THEN
-    RAISE NOTICE '[✓] Test 8 : Séquence pour ID existe';
+    RAISE NOTICE '[OK] Test 8 : Séquence pour ID existe';
   ELSE
-    RAISE NOTICE '[⚠] Test 8 : Avertissement - Séquence non trouvée';
+    RAISE NOTICE '[AVERTISSEMENT] Test 8 : Avertissement - Séquence non trouvée';
   END IF;
   
   -- Résumé

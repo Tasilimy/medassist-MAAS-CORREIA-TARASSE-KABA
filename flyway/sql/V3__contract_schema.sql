@@ -1,7 +1,7 @@
 -- V3__contract_schema.sql : Phase CONTRACT pour finaliser les migrations
 -- Supprimer les anciennes structures après validation que V2 fonctionne
 -- 
--- ⚠️ ATTENTION : Cette phase est IRRÉVERSIBLE
+--  ATTENTION : Cette phase est IRRÉVERSIBLE
 -- À exécuter UNIQUEMENT après avoir validé que l'application V2 fonctionne
 -- ====================================================================
 --

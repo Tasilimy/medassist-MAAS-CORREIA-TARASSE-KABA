@@ -1,6 +1,7 @@
 ﻿# Guide de Deploiement - Phases Expand-Contract
 
 Ce document decrit la procedure de deploiement des migrations MedAssist en production.
+Il sert de runbook operationnel pour les fenetres de maintenance.
 
 ## 1. Vue d'ensemble
 
@@ -12,7 +13,7 @@ La migration suit une strategie Expand-Contract en 3 fenetres de maintenance (3 
 | Dimanche 2 | 4h | Validation applicative | Faible | N/A |
 | Dimanche 3 | 4h | CONTRACT (V3) | Eleve | R_V3 |
 
-## 2. Timeline de deploiement
+## 2. Planning de deploiement
 
 ### Preparation (Semaine 0)
 - Revue des scripts Flyway (V2 et V3)
@@ -70,7 +71,7 @@ docker exec -i medassist_pg psql -U medassist_user -d medassist < rollback/R_V2_
 Puis, si necessaire :
 
 ```sql
-DELETE FROM flyway_schema_history WHERE version = '2.0';
+DELETE FROM flyway_schema_history WHERE version IN ('2', '2.0');
 ```
 
 Temps de recuperation cible : environ 15 minutes.
@@ -85,7 +86,7 @@ docker exec -i medassist_pg psql -U medassist_user -d medassist < rollback/R_V3_
 Puis, si necessaire :
 
 ```sql
-DELETE FROM flyway_schema_history WHERE version = '3.0';
+DELETE FROM flyway_schema_history WHERE version IN ('3', '3.0');
 ```
 
 Temps de recuperation cible : environ 15 minutes.
@@ -119,6 +120,45 @@ Temps de recuperation cible : environ 15 minutes.
 | Integrite des donnees | 100% | Comparaison avant/apres |
 | Performance | < 120 ms | Requetes de controle |
 | Erreurs applicatives | 0 critique | Logs applicatifs |
+
+## Plan de validation
+
+Objectif : definir les etapes et criteres permettant de valider chaque phase de migration (EXPAND puis CONTRACT).
+
+Etapes principales :
+- 1) Environnement de pre-production : appliquer V2, executer la suite de tests A->E, et valider les resultats.
+- 2) Verification manuelle et automatisee : comparer jeux d'exemples, verifier l'absence d'erreurs applicatives et les temps de reponse.
+- 3) Decision GO/NO-GO : les responsables (DBA, Dev, Ops) valident avant la fenetre CONTRACT.
+- 4) Apres CONTRACT : appliquer V3/V4 en pre-production, executer `test_contract.sql` et valider la suppression des anciennes structures.
+
+Criteres d'acceptation :
+- Tous les tests A->E passent (100%).
+- `test_contract.sql` passe sur la base mise a jour (100%).
+- Aucun incident critique dans les logs pendant 60 minutes post-deploiement.
+
+## Exécution des tests
+
+Ordre requis (important) :
+- 1) Migrer jusqu'a V2 (EXPAND).
+- 2) Executer les tests fonctionnels de l'evolution : `test_evolution_A..E.sql` (dans l'ordre). Ces tests verifient compatibilite et integrite.
+- 3) Apres validation, migrer vers V3 (CONTRACT) / V4 (compatibilite si present).
+- 4) Executer `test_contract.sql` pour valider l'etat final.
+
+Notes d'execution :
+- Les tests A->E doivent etre executes AVANT CONTRACT : si on lance CONTRACT avant ces tests, des colonnes/objets transitoires peuvent etre absents et les tests echoueront a tort.
+- Pour automatiser localement :
+
+```bash
+# Migrer V2 puis lancer tests A->E
+docker-compose run --rm flyway -target=2 migrate
+for f in tests/test_evolution_*.sql; do docker exec -i medassist_pg psql -U medassist_user -d medassist < "$f"; done
+
+# Migrer V3 puis lancer test_contract
+docker-compose run --rm flyway -target=3 migrate
+docker exec -i medassist_pg psql -U medassist_user -d medassist < tests/test_contract.sql
+```
+
+Conserver les resultats et logs (`docker logs medassist_pg`) pour le dossier d'incident.
 
 ## 6. Commandes d'execution
 

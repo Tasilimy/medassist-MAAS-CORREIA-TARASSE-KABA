@@ -12,9 +12,9 @@ BEGIN
   -- Test 1 : Vérifier que la table addresses existe
   v_test_count := v_test_count + 1;
   IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_name = 'addresses') THEN
-    RAISE NOTICE '[✓] Test 1 : Table addresses existe';
+    RAISE NOTICE '[OK] Test 1 : Table addresses existe';
   ELSE
-    RAISE NOTICE '[✗] Test 1 ÉCHOUÉ : Table addresses n''existe pas';
+    RAISE NOTICE '[ERREUR] Test 1 ÉCHOUÉ : Table addresses n''existe pas';
     v_failed_count := v_failed_count + 1;
   END IF;
   
@@ -26,9 +26,9 @@ BEGIN
     AND column_name IN ('id', 'patient_id', 'address_type', 'line1', 'city', 'postal_code', 'country', 'is_primary')
     GROUP BY table_name HAVING COUNT(*) = 8
   ) THEN
-    RAISE NOTICE '[✓] Test 2 : Toutes les colonnes requises existent';
+    RAISE NOTICE '[OK] Test 2 : Toutes les colonnes requises existent';
   ELSE
-    RAISE NOTICE '[✗] Test 2 ÉCHOUÉ : Colonnes manquantes dans addresses';
+    RAISE NOTICE '[ERREUR] Test 2 ÉCHOUÉ : Colonnes manquantes dans addresses';
     v_failed_count := v_failed_count + 1;
   END IF;
   
@@ -38,19 +38,19 @@ BEGIN
     SELECT 1 FROM information_schema.table_constraints 
     WHERE table_name = 'addresses' AND constraint_type = 'CHECK'
   ) THEN
-    RAISE NOTICE '[✓] Test 3 : Contrainte CHECK sur address_type existe';
+    RAISE NOTICE '[OK] Test 3 : Contrainte CHECK sur address_type existe';
   ELSE
-    RAISE NOTICE '[✗] Test 3 ÉCHOUÉ : Contrainte CHECK manquante';
+    RAISE NOTICE '[ERREUR] Test 3 ÉCHOUÉ : Contrainte CHECK manquante';
     v_failed_count := v_failed_count + 1;
   END IF;
   
   -- Test 4 : Vérifier que les données des patients ont été migrées
   v_test_count := v_test_count + 1;
   IF (SELECT COUNT(*) FROM addresses) > 0 THEN
-    RAISE NOTICE '[✓] Test 4 : Données migrées vers addresses (% adresses)', 
+    RAISE NOTICE '[OK] Test 4 : Données migrées vers addresses (% adresses)', 
       (SELECT COUNT(*) FROM addresses);
   ELSE
-    RAISE NOTICE '[✗] Test 4 ÉCHOUÉ : Aucune donnée dans addresses';
+    RAISE NOTICE '[ERREUR] Test 4 ÉCHOUÉ : Aucune donnée dans addresses';
     v_failed_count := v_failed_count + 1;
   END IF;
   
@@ -60,17 +60,17 @@ BEGIN
      (SELECT COUNT(*) FROM addresses WHERE patient_id IN (
        SELECT DISTINCT patient_id FROM addresses
      )) THEN
-    RAISE NOTICE '[✓] Test 5 : Intégrité des adresses primaires';
+    RAISE NOTICE '[OK] Test 5 : Intégrité des adresses primaires';
   ELSE
-    RAISE NOTICE '[✓] Test 5 : Avertissement - Certains patients n''ont pas d''adresse primaire';
+    RAISE NOTICE '[OK] Test 5 : Avertissement - Certains patients n''ont pas d''adresse primaire';
   END IF;
   
   -- Test 6 : Vue de compatibilité V1 fonctionne
   v_test_count := v_test_count + 1;
   IF EXISTS (SELECT 1 FROM patients_v1_view LIMIT 1) THEN
-    RAISE NOTICE '[✓] Test 6 : Vue patients_v1_view accessible';
+    RAISE NOTICE '[OK] Test 6 : Vue patients_v1_view accessible';
   ELSE
-    RAISE NOTICE '[✗] Test 6 ÉCHOUÉ : Vue patients_v1_view n''existe pas ou vide';
+    RAISE NOTICE '[ERREUR] Test 6 ÉCHOUÉ : Vue patients_v1_view n''existe pas ou vide';
     v_failed_count := v_failed_count + 1;
   END IF;
   
@@ -80,9 +80,9 @@ BEGIN
     SELECT 1 FROM pg_indexes 
     WHERE tablename = 'addresses' AND indexname LIKE '%patient%'
   ) THEN
-    RAISE NOTICE '[✓] Test 7 : Index sur patient_id existe';
+    RAISE NOTICE '[OK] Test 7 : Index sur patient_id existe';
   ELSE
-    RAISE NOTICE '[✗] Test 7 ÉCHOUÉ : Index manquant';
+    RAISE NOTICE '[ERREUR] Test 7 ÉCHOUÉ : Index manquant';
     v_failed_count := v_failed_count + 1;
   END IF;
   

@@ -5,7 +5,7 @@
 ====================================================================
 --
 
--- ⚠️ ATTENTION : Ce rollback restaure la structure mais PAS les données supprimées
+--  ATTENTION : Ce rollback restaure la structure mais PAS les données supprimées
 -- Les données dans les nouvelles tables (addresses, doctors) restent intactes
 
 -- ====================================================================
@@ -71,7 +71,7 @@ SELECT
 FROM patients p
 LEFT JOIN addresses a ON p.id = a.patient_id AND a.is_primary = TRUE;
 
-RAISE NOTICE '[✓] ROLLBACK ÉVOLUTION A : Adresses restaurées';
+RAISE NOTICE '[OK] ROLLBACK ÉVOLUTION A : Adresses restaurées';
 
 -- ====================================================================
 -- Restaurer ÉVOLUTION B : Doctors
@@ -126,7 +126,7 @@ SELECT
 FROM consultations c
 LEFT JOIN doctors d ON c.doctor_id = d.id;
 
-RAISE NOTICE '[✓] ROLLBACK ÉVOLUTION B : Doctors restaurés';
+RAISE NOTICE '[OK] ROLLBACK ÉVOLUTION B : Doctors restaurés';
 
 -- ====================================================================
 -- Restaurer ÉVOLUTION C : Gender
@@ -146,7 +146,7 @@ ALTER TABLE patients RENAME COLUMN gender_old TO gender;
 -- Ajouter la contrainte CHECK sur l'ancien gender
 ALTER TABLE patients ADD CONSTRAINT check_gender_old CHECK (gender IN ('M', 'F', 'M', 'F', 'NB', 'U'));
 
-RAISE NOTICE '[✓] ROLLBACK ÉVOLUTION C : Gender restauré';
+RAISE NOTICE '[OK] ROLLBACK ÉVOLUTION C : Gender restauré';
 
 -- ====================================================================
 -- Restaurer ÉVOLUTION D : Chiffrement
@@ -157,7 +157,7 @@ RAISE NOTICE '[✓] ROLLBACK ÉVOLUTION C : Gender restauré';
 -- Supprimer l'index créé (optionnel)
 DROP INDEX IF EXISTS idx_patients_ssn_encrypted;
 
-RAISE NOTICE '[✓] ROLLBACK ÉVOLUTION D : Chiffrement inchangé';
+RAISE NOTICE '[OK] ROLLBACK ÉVOLUTION D : Chiffrement inchangé';
 
 -- ====================================================================
 -- Restaurer ÉVOLUTION E : Partitionnement
@@ -167,7 +167,7 @@ DROP VIEW IF EXISTS consultations_legacy;
 
 -- Les tables consultations et consultations_partitioned restent intactes
 
-RAISE NOTICE '[✓] ROLLBACK ÉVOLUTION E : Partitionnement inchangé';
+RAISE NOTICE '[OK] ROLLBACK ÉVOLUTION E : Partitionnement inchangé';
 
 -- ====================================================================
 -- Résumé du rollback
