@@ -120,11 +120,6 @@ Cette migration utilise la strategie Expand-Contract pour reduire l'impact en pr
 - Finaliser les index et optimisations
 - **Irréversible** - A executer uniquement apres validation en production
 
-Etat actuel :
-- Phase EXPAND : terminee
-- Phase CONTRACT : implementee
-- Rollback : disponible pour V2 et V3
-
 ## 6. Fichiers du projet
 
 - `V2__expand_schema.sql` - Phase EXPAND
