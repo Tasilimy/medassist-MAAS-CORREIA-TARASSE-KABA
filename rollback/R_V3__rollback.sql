@@ -173,6 +173,3 @@ RAISE NOTICE '[OK] ROLLBACK ÉVOLUTION E : Partitionnement inchangé';
 -- Résumé du rollback
 -- ====================================================================
 RAISE NOTICE '========== ROLLBACK V3 COMPLÉTÉ ==========';
-RAISE NOTICE 'État restauré : Phase EXPAND (V2)';
-RAISE NOTICE 'Les données restent intactes';
-RAISE NOTICE 'Les triggers de synchronisation sont actifs';
